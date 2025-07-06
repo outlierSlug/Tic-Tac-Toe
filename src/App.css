@@ -1,38 +1,88 @@
-.App {
+.game {
   text-align: center;
+  font-family: sans-serif;
+  padding-top: 20px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Game status */
+.status {
+  margin: 10px 0;
+  font-size: 1.2em;
+  font-weight: bold;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Board and squares */
+.board {
+  display: inline-block;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.board-row {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+}
+
+.square {
+  width: 60px;
+  height: 60px;
+  font-size: 2em;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 2px;
+  background: #f0f0f0;
+  border: 2px solid #444;
+  transition: background 0.2s;
+}
+
+.square:hover {
+  background: #ddd;
+}
+
+.square.gray {
+  background: #ccc; /* Light gray background */
+  color: #888; /* Gray text */
+}
+
+/* X and O markers */
+.x-marker {
+  color: blue; /* Blue for X */
+}
+
+.o-marker {
+  color: red; /* Red for O */
+}
+
+/* Reset button */
+.reset {
+  margin-top: 15px;
+  margin-left: 10px;
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  background-color: #007bff;
   color: white;
+  border: none;
+  border-radius: 5px;
 }
 
-.App-link {
-  color: #61dafb;
+.reset:hover {
+  background-color: #0056b3;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Undo button */
+.undo {
+  margin-top: 15px;
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
 }
+
+.undo:hover {
+  background-color: #0056b3;
+}
+
+
+
+
