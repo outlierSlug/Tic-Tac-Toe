@@ -63,6 +63,10 @@
   color: red; /* Red for O */
 }
 
+.draw {
+  color: rgba(0,0,0,0.6);
+}
+
 /* Game Controls UI*/
 .game-controls { 
   display: flex;

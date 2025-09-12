@@ -34,11 +34,19 @@ export default function Game() {
 
   function renderStatus() {
     if (winnerInfo) {
-      return `Winner: ${winnerInfo.winner}`;
+      return (
+        <span>
+          Winner: <span className={winnerInfo.winner === "X" ? "x-marker" : "o-marker"}>{winnerInfo.winner}</span>
+        </span>
+      );
     } else if (!currentSquares.includes(null)) {
-      return "Draw!";
+      return <span className="draw">Draw!</span>;
     } else {
-      return `Next Player: ${xIsNext ? "X" : "O"}`;
+      return(
+        <span>
+          Next Player: <span className={xIsNext ? "x-marker" : "o-marker"}>{xIsNext ? "X" : "O"}</span>
+        </span>
+      );
     }
   }
  
