@@ -1,137 +1,140 @@
-import React, { useState } from 'react';
-import './App.css';
+import { useState } from "react";
+import "./App.css";
 
-const App = () => {
-  const emptyBoard = Array(9).fill(null);
-  const [board, setBoard] = useState(emptyBoard);
-  const [xIsNext, setXIsNext] = useState(true);
-  const [history, setHistory] = useState([]); // Track the history of board states
-  const [xMoves, setXMoves] = useState([]); // Track the positions of X's tokens
-  const [oMoves, setOMoves] = useState([]); // Track the positions of O's tokens
-  const winner = calculateWinner(board);
+export default function Game() {
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [currentMove, setCurrentMove] = useState(0);
+  const xIsNext = currentMove % 2 === 0; // X's turn is next when the current move is even since they have the first move
+  const currentSquares = history[currentMove];
+  const winnerInfo = calculateWinner(currentSquares);
+  const winningSquares = winnerInfo ? winnerInfo.winningSquares : [];
 
-  const handleClick = (index) => {
-    if (board[index] || winner) return;
+  function handlePlay(nextSquares) {
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
+  }
 
-    // Save the current board state to history before making a move
-    setHistory([...history, {board, xMoves, oMoves }]);
-
-    const newBoard = [...board];
-    const currentPlayer = xIsNext ? 'X' : 'O';
-
-    // Place the current player's token
-    newBoard[index] = currentPlayer;
-
-    // Update the board and moves
-    setBoard(newBoard);
-    if (currentPlayer === 'X') {
-      const newXMoves = [...xMoves, index];
-      if (newXMoves.length > 3) {
-        // Remove the first token when placing the fourth
-        const [firstMove, ...remainingMoves] = newXMoves;
-        newBoard[firstMove] = null; // Remove the first token
-        setXMoves(remainingMoves);
-      } else {
-        setXMoves(newXMoves);
-      }
-    } else {
-      const newOMoves = [...oMoves, index];
-      if (newOMoves.length > 3) {
-        // Remove the first token when placing the fourth
-        const [firstMove, ...remainingMoves] = newOMoves;
-        newBoard[firstMove] = null; // Remove the first token
-        setOMoves(remainingMoves);
-      } else {
-        setOMoves(newOMoves);
-      }
+  function undo() {
+    if (currentMove > 0) {
+      setCurrentMove(currentMove - 1);
     }
+  }
 
-    setXIsNext(!xIsNext); // Switch turns
-  };
+  function redo() {
+    if (currentMove < history.length - 1) {
+      setCurrentMove(currentMove + 1);
+    }
+  }
 
-  const undoMove = () => {
-    if (history.length === 0) return; // No moves to undo
+  function reset() {
+    setHistory([Array(9).fill(null)]);
+    setCurrentMove(0);
+  }
 
-    const previousState = history[history.length - 1];
-    setBoard(previousState.board); // Revert to the previous board state
-    setXMoves(previousState.xMoves); // Revert X's moves
-    setOMoves(previousState.oMoves); // Revert O's moves
-    setHistory(history.slice(0, -1)); // Remove the last state from history
-    setXIsNext(!xIsNext); // Switch the turn back
-  
-  };
-  
-  const resetGame = () => {
-    setBoard(emptyBoard);
-    setXIsNext(true);
-    setHistory([]);
-    setXMoves([]);
-    setOMoves([]);
-  };
-
-  const renderSquare = (index) => {
-    const isGray =
-      (xMoves.length === 3 && xMoves[0] === index) ||
-      (oMoves.length === 3 && oMoves[0] === index);
-
-    return (
-      <button
-        className={`square ${isGray ? 'gray' : ''}`}
-        onClick={() => handleClick(index)}
-      >
-        <span className={board[index] === 'X' ? 'x-marker' : 'o-marker'}>
-          {board[index]}
-        </span>
-      </button>
-    );
-  };
-
-  const status = winner
-    ? `Winner: ${winner}`
-    : board.every(Boolean)
-    ? 'Draw!'
-    : `Next player: ${xIsNext ? 'X' : 'O'}`;
-
+  function renderStatus() {
+    if (winnerInfo) {
+      return `Winner: ${winnerInfo.winner}`;
+    } else if (!currentSquares.includes(null)) {
+      return "Draw!";
+    } else {
+      return `Next Player: ${xIsNext ? "X" : "O"}`;
+    }
+  }
+ 
   return (
     <div className="game">
-      <h2>Tic-Tac-Toe</h2>
-      {/* Only show the status when there is a winner or a draw */}
-      {winner || board.every(Boolean) ? (
-        <div className="status">{status}</div>
-      ) : null}
-      <div className="board">
-        {[0, 1, 2].map((row) => (
-          <div key={row} className="board-row">
-            {renderSquare(row * 3)}
-            {renderSquare(row * 3 + 1)}
-            {renderSquare(row * 3 + 2)}
-          </div>
-        ))}
+      <h1 className="game-title">Tic-Tac-Toe</h1>
+      <div className="status">{renderStatus()}</div>
+      <div className="game-board">
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} winningSquares={winningSquares} />
       </div>
-      <div>
-        <button className="undo" onClick={undoMove}>
-          Undo
-        </button>
-        <button className="reset" onClick={resetGame}>
-          Reset
-        </button>
+      <div className="game-info">
+        <div className="game-controls">
+          <button onClick={undo} disabled={currentMove === 0}>
+            Undo
+          </button>
+          <button onClick={redo} disabled={currentMove === history.length - 1}>
+            Redo
+          </button>
+          <button onClick={reset}>Reset</button>
+        </div>
       </div>
     </div>
   );
-};
+}
 
-const calculateWinner = (squares) => {
+function Square({ value, onSquareClick, isWinningSquare }) {
+  let className = "square";
+  if (value === "X") {
+    className += " x-marker";
+  } else if (value === "O") {
+    className += " o-marker";
+  }
+  if (isWinningSquare) {
+    className += " highlight";
+  }
+
+
+  return (
+    <button className={className} onClick={onSquareClick}>
+      {value}
+    </button>
+  );
+}
+
+function Board({ xIsNext, squares, onPlay, winningSquares }) {
+  function handleClick(i) {
+    if (squares[i] || calculateWinner(squares)) {
+      return;
+    }
+    const nextSquares = squares.slice();
+    if (xIsNext) {
+      nextSquares[i] = "X";
+    } else {
+      nextSquares[i] = "O";
+    }
+    onPlay(nextSquares);
+  }
+
+  // Render game board using loops
+  const scale = 3; // 3x3 grid
+  const boardRows = [];
+  for (let row = 0; row < scale; row++) {
+    const squaresInRow = [];
+    for (let col = 0; col < scale; col++) {
+      const index = row * scale + col;
+      squaresInRow.push(
+        <Square
+          key={index}
+          value={squares[index]}
+          onSquareClick={() => handleClick(index)}
+          isWinningSquare={winningSquares.includes(index)} 
+        />
+      );
+    }
+    boardRows.push(<div key={row} className="board-row">{squaresInRow}</div>);
+  }
+  return <div className="board">{boardRows}</div>;
+}
+
+// Calculate if the current game board has a winner (a player with three tokens in a row)
+function calculateWinner(squares) {
   const lines = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
-    [0, 3, 6], [1, 4, 7], [2, 5, 8], // cols
-    [0, 4, 8], [2, 4, 6], // diagonals
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
   ];
-  for (const [a, b, c] of lines) {
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return { winner: squares[a], winningSquares: [a, b, c] };
     }
   }
   return null;
-};
-
-export default App;
+}
