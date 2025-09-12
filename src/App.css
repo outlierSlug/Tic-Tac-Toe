@@ -44,11 +44,7 @@
   background: #ddd;
 }
 
-.square.gray {
-  background: #ccc; /* Light gray background */
-  color: #888; /* Gray text */
-}
-
+/* Highlight for winning squares */
 .square.highlight {
   box-shadow: 0 0 3px 2px #4CAF50;  
   transition: box-shadow 0.3s, border 0.3s;
@@ -63,6 +59,7 @@
   color: red; /* Red for O */
 }
 
+/* Draw status */
 .draw {
   color: rgba(0,0,0,0.6);
 }

@@ -1,37 +1,63 @@
 import { useState } from "react";
 import "./App.css";
 
+/**
+ *  The main Game component that manages the state and logic of the Tic-Tac-Toe web app.
+ *  @returns {JSX.Element} The rendered Game component.
+ */
 export default function Game() {
+  // State to track the history of moves and the current move index.
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
-  const xIsNext = currentMove % 2 === 0; // X's turn is next when the current move is even since they have the first move
+  
+  // Determine whose turn it is and the current game state. X starts first and players alternate turns.
+  const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
+
+  // Check for winner and winning squares.
   const winnerInfo = calculateWinner(currentSquares);
   const winningSquares = winnerInfo ? winnerInfo.winningSquares : [];
 
+  /**
+   * Handles a new move by updating the game history and current move index.
+   * @param {Array<string|null>} nextSquares - Updated board state after a move. 
+   */
   function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
     setCurrentMove(nextHistory.length - 1);
   }
 
+  /**
+   * Undos the last move, if possible, by decrementing the current move index.
+   */
   function undo() {
     if (currentMove > 0) {
       setCurrentMove(currentMove - 1);
     }
   }
 
+  /**
+   * Redos the next move, if possible, by incrementing the current move index.
+   */
   function redo() {
     if (currentMove < history.length - 1) {
       setCurrentMove(currentMove + 1);
     }
   }
 
+  /**
+   * Resets the game to the initial state.
+   */
   function reset() {
     setHistory([Array(9).fill(null)]);
     setCurrentMove(0);
   }
 
+  /**
+   * Renders the status message for the game, indicating the next player, winner, or draw result. 
+   * @returns {JSX.Element} Status message element.
+   */
   function renderStatus() {
     if (winnerInfo) {
       return (
@@ -72,6 +98,14 @@ export default function Game() {
   );
 }
 
+/**
+ * Square component representing a single cell in the Tic-Tac-Toe board.
+ * @param {Object} props
+ * @param {string|null} props.value - The current value of the square ("X", "O", or null).
+ * @param {Function} props.onSquareClick - Callback function when the square is clicked.
+ * @param {boolean} props.isWinningSquare - Indicates if the square is part of the winning combination.
+ * @returns {JSX.Element} The rendered Square component.
+ */
 function Square({ value, onSquareClick, isWinningSquare }) {
   let className = "square";
   if (value === "X") {
@@ -83,7 +117,6 @@ function Square({ value, onSquareClick, isWinningSquare }) {
     className += " highlight";
   }
 
-
   return (
     <button className={className} onClick={onSquareClick}>
       {value}
@@ -91,7 +124,20 @@ function Square({ value, onSquareClick, isWinningSquare }) {
   );
 }
 
+/**
+ * Board component representing the 3x3 Tic-Tac-Toe grid.
+ * @param {Object} props
+ * @param {boolean} props.xIsNext - Indicates if X's turn is next.
+ * @param {Array<string|null>} props.squares - Current board state.
+ * @param {Function} props.onPlay - Callback when a square is clicked.
+ * @param {Array<Number>} props.winningSquares - Indices of the winning squares.
+ * @returns {JSX.Element} The rendered Board component.
+ */
 function Board({ xIsNext, squares, onPlay, winningSquares }) {
+  /**
+   * Handles a square being clicked and updates the board state if valid
+   * @param {number} i - The index of the clicked square.
+   */
   function handleClick(i) {
     if (squares[i] || calculateWinner(squares)) {
       return;
@@ -105,9 +151,9 @@ function Board({ xIsNext, squares, onPlay, winningSquares }) {
     onPlay(nextSquares);
   }
 
-  // Render game board using loops
   const scale = 3; // 3x3 grid
   const boardRows = [];
+
   for (let row = 0; row < scale; row++) {
     const squaresInRow = [];
     for (let col = 0; col < scale; col++) {
@@ -126,7 +172,11 @@ function Board({ xIsNext, squares, onPlay, winningSquares }) {
   return <div className="board">{boardRows}</div>;
 }
 
-// Calculate if the current game board has a winner (a player with three tokens in a row)
+/**
+ * Helper function to calculate whether there is a winner in the current board state, and the indices of the winning combination if there is one.
+ * @param {Array<string|null>} squares - Current board state.
+ * @returns { { winner: string, winningSquares: number[]} | null } - Record containing winner information or null if there is no winner yet.
+ */
 function calculateWinner(squares) {
   const lines = [
     [0, 1, 2],
