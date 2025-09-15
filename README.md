@@ -1,5 +1,5 @@
 # Tic-Tac-Toe 
-A classic Tic-Tac-Toe game built with React and JavaScript. This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A classic Tic-Tac-Toe game built with React and JavaScript.
 
 
 ### Prerequisites
@@ -33,5 +33,5 @@ It correctly bundles React in production mode and optimizes the build for the be
 Ejects configuration. 
 
 ## License
-This project is licensed under the [MIT License](https://mit-license.org/). Feel fre to use, modify, and redistribute.
+This project is licensed under the [MIT License](https://mit-license.org/). Feel free to use, modify, and redistribute.
 
